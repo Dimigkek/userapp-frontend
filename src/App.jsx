@@ -1,12 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Home from "./pages/Home";
+import Users from "./pages/Users";
+import CreateUser from "./pages/CreateUser";
+import UserDetails from "./pages/UserDetails";
 
 export default function App() {
     return (
-        <div className="min-h-screen bg-gray-900 text-white flex items-center justify-center">
-            <h1 className="text-4xl font-bold">Tailwind OK</h1>
-        </div>
-    )
+        <BrowserRouter>
+            <Navbar />
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/users" element={<Users />} />
+                <Route path="/users/new" element={<CreateUser />} />
+                <Route path="/users/:id" element={<UserDetails />} />
+            </Routes>
+        </BrowserRouter>
+    );
 }
