@@ -8,7 +8,7 @@ export default function Home() {
         <div className="home">
             <h1 className="home-title">Welcome to the User Management App</h1>
             <p className="home-subtitle">
-                Spring Boot backend – React frontend
+                Spring Boot backend – React frontend project
             </p>
 
             <div className="home-actions">

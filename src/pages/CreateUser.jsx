@@ -83,6 +83,7 @@ export default function CreateUser() {
                         <option value="">Select</option>
                         <option value="M">M</option>
                         <option value="F">F</option>
+                        <option value="O">Other</option>
                     </select>
                 </label>
 

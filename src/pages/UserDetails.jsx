@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import userApi from "../api/userApi";
+import "./CreateUser.css";
 
 export default function UserDetails() {
     const { id } = useParams();
@@ -55,30 +56,89 @@ export default function UserDetails() {
                     </>
                 ) : (
                     <>
-                        <h2 className="card-title">Edit Mode</h2>
-                        <div className="card-section">
-                            <label>Name:</label>
-                            <input name="name" value={formData.name} onChange={handleChange} className="edit-input" />
+                        <div className="card form-card">
+                            <h2 className="card-title" style={{ color: 'white', marginBottom: '20px' }}>Edit User Profile</h2>
 
-                            <label>Surname:</label>
-                            <input name="surname" value={formData.surname} onChange={handleChange} className="edit-input" />
+                            <label className="label">
+                                Name *
+                                <input
+                                    className="input"
+                                    name="name"
+                                    value={formData.name || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </label>
 
-                            <label>Gender:</label>
-                            <select name="gender" value={formData.gender} onChange={handleChange} className="edit-input">
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                                <option value="O">Other</option>
-                            </select>
+                            <label className="label">
+                                Surname *
+                                <input
+                                    className="input"
+                                    name="surname"
+                                    value={formData.surname || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </label>
 
-                            <label>Home Address:</label>
-                            <input name="homeAddress" value={formData.homeAddress} onChange={handleChange} className="edit-input" />
+                            <label className="label">
+                                Gender *
+                                <select
+                                    className="input"
+                                    name="gender"
+                                    value={formData.gender || ""}
+                                    onChange={handleChange}
+                                    required
+                                >
+                                    <option value="">Select</option>
+                                    <option value="M">M</option>
+                                    <option value="F">F</option>
+                                    <option value="O">Other</option>
+                                </select>
+                            </label>
 
-                            <label>Work Address:</label>
-                            <input name="workAddress" value={formData.workAddress} onChange={handleChange} className="edit-input" />
-                        </div>
-                        <div className="button-group">
-                            <button className="save-btn" onClick={handleUpdate}>Save Changes</button>
-                            <button className="cancel-btn" onClick={() => setIsEditing(false)}>Cancel</button>
+                            <label className="label">
+                                Birthdate *
+                                <input
+                                    type="date"
+                                    className="input date-input"
+                                    name="birthdate"
+                                    value={formData.birthdate || ""}
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </label>
+
+                            <label className="label">
+                                Home Address
+                                <textarea
+                                    className="input textarea"
+                                    name="homeAddress"
+                                    value={formData.homeAddress || ""}
+                                    onChange={handleChange}
+                                    rows={1}
+                                />
+                            </label>
+
+                            <label className="label">
+                                Work Address
+                                <textarea
+                                    className="input textarea"
+                                    name="workAddress"
+                                    value={formData.workAddress || ""}
+                                    onChange={handleChange}
+                                    rows={1}
+                                />
+                            </label>
+
+                            <div className="button-group" style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                <button className="primary-btn" onClick={handleUpdate} style={{ flex: 1 }}>
+                                    Save Changes
+                                </button>
+                                <button className="cancel-btn" onClick={() => setIsEditing(false)} style={{ flex: 1 }}>
+                                    Cancel
+                                </button>
+                            </div>
                         </div>
                     </>
                 )}
