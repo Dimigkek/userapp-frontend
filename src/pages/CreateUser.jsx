@@ -23,7 +23,6 @@ export default function CreateUser() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // ✅ ΣΩΣΤΟ payload – ίδιο με Postman
         const payload = {
             name: form.name,
             surname: form.surname,
@@ -33,7 +32,6 @@ export default function CreateUser() {
             workAddress: form.workAddress || null
         };
 
-        console.log("POST payload:", payload); // debug – κράτα το
 
         try {
             await userApi.createUser(payload);
@@ -81,8 +79,8 @@ export default function CreateUser() {
                         required
                     >
                         <option value="">Select</option>
-                        <option value="M">M</option>
-                        <option value="F">F</option>
+                        <option value="M">Male</option>
+                        <option value="F">Female</option>
                         <option value="O">Other</option>
                     </select>
                 </label>
