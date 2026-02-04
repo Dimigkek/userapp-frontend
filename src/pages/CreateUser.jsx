@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { createUser } from "../api/userApi";
+import userApi from "../api/userApi";
+import "./CreateUser.css";
 
 export default function CreateUser() {
     const navigate = useNavigate();
@@ -10,46 +11,35 @@ export default function CreateUser() {
         surname: "",
         gender: "",
         birthdate: "",
-        addressType: "",
-        addressText: ""
+        homeAddress: "",
+        workAddress: ""
     });
 
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-
     const handleChange = (e) => {
-        setForm({
-            ...form,
-            [e.target.name]: e.target.value
-        });
+        const { name, value } = e.target;
+        setForm({ ...form, [name]: value });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setError(null);
-        setLoading(true);
 
         const payload = {
             name: form.name,
             surname: form.surname,
             gender: form.gender,
             birthdate: form.birthdate,
-            addresses: [
-                {
-                    type: form.addressType,   // H or W
-                    addressText: form.addressText
-                }
-            ]
+            address: {
+                homeAddress: form.homeAddress || null,
+                workAddress: form.workAddress || null
+            }
         };
 
         try {
-            await createUser(payload);
+            await userApi.createUser(payload);
             navigate("/users");
         } catch (err) {
-            console.error(err);
-            setError("Failed to create user");
-        } finally {
-            setLoading(false);
+            console.error("Failed to create user", err);
+            alert("Failed to create user");
         }
     };
 
@@ -57,67 +47,80 @@ export default function CreateUser() {
         <div className="page">
             <h1 className="page-title">Register New User</h1>
 
-            <form className="form" onSubmit={handleSubmit}>
-                <input
-                    name="name"
-                    placeholder="Name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                />
+            <form className="card form-card" onSubmit={handleSubmit}>
+                <label>
+                    Name *
+                    <input
+                        className="input"
+                        name="name"
+                        value={form.name}
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
 
-                <input
-                    name="surname"
-                    placeholder="Surname"
-                    value={form.surname}
-                    onChange={handleChange}
-                    required
-                />
+                <label>
+                    Surname *
+                    <input
+                        className="input"
+                        name="surname"
+                        value={form.surname}
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
 
-                <select
-                    name="gender"
-                    value={form.gender}
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="">Select gender</option>
-                    <option value="M">Male</option>
-                    <option value="F">Female</option>
-                </select>
+                <label>
+                    Gender *
+                    <select
+                        className="input"
+                        name="gender"
+                        value={form.gender}
+                        onChange={handleChange}
+                        required
+                    >
+                        <option value="">Select</option>
+                        <option value="M">M</option>
+                        <option value="F">F</option>
+                    </select>
+                </label>
 
-                <input
-                    type="date"
-                    name="birthdate"
-                    value={form.birthdate}
-                    onChange={handleChange}
-                    required
-                />
+                <label>
+                    Birthdate *
+                    <input
+                        type="date"
+                        className="input date-input"
+                        name="birthdate"
+                        value={form.birthdate}
+                        onChange={handleChange}
+                        required
+                    />
+                </label>
 
-                <hr />
+                <label>
+                    Home Address
+                    <textarea
+                        className="input textarea"
+                        name="homeAddress"
+                        value={form.homeAddress}
+                        onChange={handleChange}
+                        rows={2}
+                    />
+                </label>
 
-                <select
-                    name="addressType"
-                    value={form.addressType}
-                    onChange={handleChange}
-                    required
-                >
-                    <option value="">Address type</option>
-                    <option value="H">Home</option>
-                    <option value="W">Work</option>
-                </select>
+                <label>
+                    Work Address
+                    <textarea
+                        className="input textarea"
+                        name="workAddress"
+                        value={form.workAddress}
+                        onChange={handleChange}
+                        rows={2}
+                    />
+                </label>
 
-                <input
-                    name="addressText"
-                    placeholder="Address"
-                    value={form.addressText}
-                    onChange={handleChange}
-                    required
-                />
-
-                {error && <p className="error">{error}</p>}
-
-                <button type="submit" disabled={loading}>
-                    {loading ? "Saving..." : "Save"}
+                <button type="submit" className="primary-btn">
+                    Save
                 </button>
             </form>
         </div>

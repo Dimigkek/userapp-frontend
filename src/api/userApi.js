@@ -1,9 +1,13 @@
-import api from "./axios";
+import axios from "./axios";
 
-export const getUsers = () => api.get("/users");
+export const getUsers = () => axios.get("/users");
+export const getUserById = (id) => axios.get(`/users/${id}`);
+export const createUser = (data) => axios.post("/users", data);
+export const deleteUser = (id) => axios.delete(`/users/${id}`);
 
-export const getUserById = (id) => api.get(`/users/${id}`);
-
-export const deleteUser = (id) => api.delete(`/users/${id}`);
-
-export const createUser = (data) => api.post("/users", data);
+export default{
+    getUsers,
+    getUserById,
+    createUser,
+    deleteUser,
+};

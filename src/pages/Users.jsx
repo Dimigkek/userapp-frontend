@@ -1,59 +1,56 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { getUsers, deleteUser } from "../api/userApi";
 
 export default function Users() {
     const [users, setUsers] = useState([]);
-    const navigate = useNavigate();
+
+    const loadUsers = () => {
+        getUsers()
+            .then(res => setUsers(res.data))
+            .catch(() => setUsers([]));
+    };
 
     useEffect(() => {
         loadUsers();
     }, []);
 
-    const loadUsers = async () => {
-        const res = await getUsers();
-        setUsers(res.data);
-    };
+    const handleDelete = async (id) => {
+        const ok = window.confirm("Delete this user?");
+        if (!ok) return;
 
-    const handleDelete = async (id, e) => {
-        e.stopPropagation();
-        await deleteUser(id);
-        loadUsers();
+        try {
+            await deleteUser(id);
+            loadUsers();
+        } catch (e) {
+            alert("Failed to delete user");
+        }
     };
 
     return (
         <div className="page">
             <h1 className="page-title">Users</h1>
 
-            <table className="table">
-                <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Surname</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                {users.map((u) => (
-                    <tr
-                        key={u.id}
-                        onClick={() => navigate(`/users/${u.id}`)}
-                        className="clickable"
-                    >
-                        <td>{u.name}</td>
-                        <td>{u.surname}</td>
-                        <td>
+            <div className="card">
+                {users.length === 0 && <p>No users found</p>}
+
+                <ul className="user-list">
+                    {users.map(user => (
+                        <li key={user.id} className="user-item">
+                            <Link to={`/users/${user.id}`} className="user-link">
+                                {user.name} {user.surname}
+                            </Link>
+
                             <button
                                 className="delete-btn"
-                                onClick={(e) => handleDelete(u.id, e)}
+                                onClick={() => handleDelete(user.id)}
                             >
                                 Delete
                             </button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
+                        </li>
+                    ))}
+                </ul>
+            </div>
         </div>
     );
 }
