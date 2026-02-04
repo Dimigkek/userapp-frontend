@@ -35,7 +35,12 @@ export default function Users() {
                 <ul className="user-list">
                     {users.map(user => (
                         <li key={user.id} className="user-item">
-                            <Link to={`/users/${user.id}`} className="user-link">
+                            <Link
+                                to={`/users/${user.id}`}
+                                className="user-link"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
                                 {user.name} {user.surname}
                             </Link>
 
