@@ -11,6 +11,12 @@ export default function UserDetails() {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
 
+    const genderMap = {
+        'M': 'Male',
+        'F': 'Female',
+        'O': 'Other'
+    };
+
     useEffect(() => {
         userApi.getUserById(id)
             .then(res => {
@@ -47,7 +53,7 @@ export default function UserDetails() {
                     <>
                         <h2 className="card-title">{user.name} {user.surname}</h2>
                         <div className="card-section">
-                            <p><b>Gender:</b> {user.gender}</p>
+                            <p><b>Gender:</b> {genderMap[user.gender] || user.gender}</p>
                             <p><b>Birthdate:</b> {user.birthdate}</p>
                             <p><b>Home Address:</b> {user.homeAddress || "—"}</p>
                             <p><b>Work Address:</b> {user.workAddress || "—"}</p>
@@ -90,9 +96,9 @@ export default function UserDetails() {
                                     onChange={handleChange}
                                     required
                                 >
-                                    <option value="">Select</option>
-                                    <option value="M">M</option>
-                                    <option value="F">F</option>
+                                    <option value="">Select Gender</option>
+                                    <option value="M">Male</option>
+                                    <option value="F">Female</option>
                                     <option value="O">Other</option>
                                 </select>
                             </label>
