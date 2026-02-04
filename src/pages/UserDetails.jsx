@@ -60,7 +60,6 @@ export default function UserDetails() {
                             <h2 className="card-title" style={{ color: 'white', marginBottom: '20px' }}>Edit User Profile</h2>
 
                             <label className="label">
-                                Name *
                                 <input
                                     className="input"
                                     name="name"
@@ -82,7 +81,6 @@ export default function UserDetails() {
                             </label>
 
                             <label className="label">
-                                Gender *
                                 <select
                                     className="input"
                                     name="gender"
@@ -98,7 +96,6 @@ export default function UserDetails() {
                             </label>
 
                             <label className="label">
-                                Birthdate *
                                 <input
                                     type="date"
                                     className="input date-input"
@@ -110,7 +107,6 @@ export default function UserDetails() {
                             </label>
 
                             <label className="label">
-                                Home Address
                                 <textarea
                                     className="input textarea"
                                     name="homeAddress"
