@@ -63,6 +63,13 @@ export default function UserDetails() {
                             <label>Surname:</label>
                             <input name="surname" value={formData.surname} onChange={handleChange} className="edit-input" />
 
+                            <label>Gender:</label>
+                            <select name="gender" value={formData.gender} onChange={handleChange} className="edit-input">
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="O">Other</option>
+                            </select>
+
                             <label>Home Address:</label>
                             <input name="homeAddress" value={formData.homeAddress} onChange={handleChange} className="edit-input" />
 
