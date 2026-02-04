@@ -8,11 +8,10 @@ export default function Navbar() {
             </div>
 
             <div className="navbar-right">
-                <a href="/">Home</a>
-                <a href="/users">Users</a>
-                <a href="/register">Register User</a>
+                <Link to="/">Home</Link>
+                <Link to="/users">Users</Link>
+                <Link to="/users/new">Register User</Link>
             </div>
         </nav>
-
     );
 }

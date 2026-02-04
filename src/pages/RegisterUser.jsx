@@ -7,49 +7,86 @@ export default function RegisterUser() {
         surname: "",
         gender: "",
         birthdate: "",
-        addresses: [{ type: "", addressText: "" }]
+        addresses: [
+            { type: "", addressText: "" }
+        ]
     });
 
-    const change = (e) =>
+    const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
+    };
+
+    const handleAddressChange = (index, e) => {
+        const updated = [...form.addresses];
+        updated[index][e.target.name] = e.target.value;
+        setForm({ ...form, addresses: updated });
+    };
+
+    const addAddress = () => {
+        setForm({
+            ...form,
+            addresses: [...form.addresses, { type: "", addressText: "" }]
+        });
+    };
+
+    const removeAddress = (index) => {
+        const updated = form.addresses.filter((_, i) => i !== index);
+        setForm({ ...form, addresses: updated });
+    };
 
     const submit = async (e) => {
         e.preventDefault();
         await api.post("/users", form);
-        alert("Saved");
+        alert("User created");
     };
 
     return (
-        <div className="container">
-            <h1>Register User</h1>
+        <div className="form-container">
+            <h2>Register New User</h2>
 
             <form onSubmit={submit}>
-                <input name="name" placeholder="Name" onChange={change} />
-                <input name="surname" placeholder="Surname" onChange={change} />
-                <input name="gender" placeholder="Gender" onChange={change} />
-                <input type="date" name="birthdate" onChange={change} />
+                <input name="name" placeholder="Name" onChange={handleChange} />
+                <input name="surname" placeholder="Surname" onChange={handleChange} />
 
-                <h3>Address</h3>
+                <select name="gender" onChange={handleChange}>
+                    <option value="">Gender</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                </select>
+
                 <input
-                    placeholder="Type"
-                    onChange={(e) =>
-                        setForm({
-                            ...form,
-                            addresses: [{ ...form.addresses[0], type: e.target.value }]
-                        })
-                    }
-                />
-                <input
-                    placeholder="Address"
-                    onChange={(e) =>
-                        setForm({
-                            ...form,
-                            addresses: [{ ...form.addresses[0], addressText: e.target.value }]
-                        })
-                    }
+                    type="date"
+                    name="birthdate"
+                    onChange={handleChange}
                 />
 
-                <button>Save</button>
+                <h3>Addresses</h3>
+
+                {form.addresses.map((addr, i) => (
+                    <div key={i} className="address-block">
+                        <input
+                            name="type"
+                            placeholder="Type (HOME, WORK)"
+                            onChange={(e) => handleAddressChange(i, e)}
+                        />
+                        <input
+                            name="addressText"
+                            placeholder="Address"
+                            onChange={(e) => handleAddressChange(i, e)}
+                        />
+                        {form.addresses.length > 1 && (
+                            <button type="button" onClick={() => removeAddress(i)}>
+                                Remove
+                            </button>
+                        )}
+                    </div>
+                ))}
+
+                <button type="button" onClick={addAddress}>
+                    + Add Address
+                </button>
+
+                <button type="submit">Save User</button>
             </form>
         </div>
     );
