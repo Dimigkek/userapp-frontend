@@ -16,8 +16,6 @@ export default function Users() {
     }, []);
 
     const handleDelete = async (id) => {
-        const ok = window.confirm("Delete this user?");
-        if (!ok) return;
 
         try {
             await deleteUser(id);

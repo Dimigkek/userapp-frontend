@@ -17,22 +17,23 @@ export default function CreateUser() {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setForm({ ...form, [name]: value });
+        setForm(prev => ({ ...prev, [name]: value }));
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        // ✅ ΣΩΣΤΟ payload – ίδιο με Postman
         const payload = {
             name: form.name,
             surname: form.surname,
             gender: form.gender,
             birthdate: form.birthdate,
-            address: {
-                homeAddress: form.homeAddress || null,
-                workAddress: form.workAddress || null
-            }
+            homeAddress: form.homeAddress || null,
+            workAddress: form.workAddress || null
         };
+
+        console.log("POST payload:", payload); // debug – κράτα το
 
         try {
             await userApi.createUser(payload);
