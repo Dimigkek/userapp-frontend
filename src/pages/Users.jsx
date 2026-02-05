@@ -33,6 +33,7 @@ export default function Users() {
             try {
                 await deleteUser(id);
                 loadUsers(currentPage);
+                // eslint-disable-next-line no-unused-vars
             } catch (e) {
                 alert("Failed to delete user");
             }

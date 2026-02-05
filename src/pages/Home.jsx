@@ -6,9 +6,11 @@ export default function Home() {
 
     return (
         <div className="home">
+            <span className="home-badge">Home Page</span>
+
             <h1 className="home-title">Welcome to the User Management App</h1>
             <p className="home-subtitle">
-                Spring Boot backend – React frontend project
+                Spring Boot backend · React frontend project
             </p>
 
             <div className="home-actions">

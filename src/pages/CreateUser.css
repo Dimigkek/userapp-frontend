@@ -32,12 +32,10 @@
     resize: none;
 }
 
-/* Native date picker theming */
 .date-input {
     color-scheme: dark;
 }
 
-/* Save button */
 .primary-btn {
     margin-top: 10px;
     padding: 12px;
