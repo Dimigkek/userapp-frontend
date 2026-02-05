@@ -25,8 +25,20 @@ Communication with the Spring Boot Backend is centralized in the `services/userA
 * **Error Handling:** Centralized catch blocks to handle API errors and provide user feedback.
 * **CORS Compatibility:** Works in tandem with the Backend's CORS policy.
 
+
 ##  Installation & Setup
 1. **Prerequisites:** Ensure you have **Node.js** installed.
 2. **Install Dependencies:**
    ```bash
    npm install
+
+
+##  Environment Configuration: 
+* **Ensure the Backend is running at http://localhost:8080
+
+
+##  Run Development Server:
+* **npm run dev****
+
+##  Build for Production:
+* **npm run build
