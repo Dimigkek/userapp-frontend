@@ -1,16 +1,32 @@
-# React + Vite
+# User Management System - Frontend (React)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This is the client-side application for the User Management System, built with **React** and powered by **Vite** for an optimized development experience.
 
-Currently, two official plugins are available:
+##  Tech Stack
+* **Framework:** React 18+
+* **Build Tool:** Vite
+* **HTTP Client:** Axios (for REST API communication)
+* **Routing:** React Router DOM
+* **Styling:** CSS3 / Tailwind CSS (Optional: mention if used)
+* **Code Quality:** ESLint & Prettier
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+##  Key Features & Architecture
+* **SPA (Single Page Application):** Provides a seamless, fast-loading user experience.
+* **Component-Based Design:** Modular components (Forms, Tables, Navigation) for better maintainability.
+* **Server-side Pagination Support:** Integrated with the Backend's `Pageable` API to handle data in chunks.
+* **State Management:** Utilizes modern React Hooks (`useState`, `useEffect`, `useCallback`) for efficient state handling and performance optimization.
+* **Form Validation:** Client-side validation for mandatory fields and data formats (e.g., Birthdate via Datepicker).
 
-## React Compiler
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
 
-## Expanding the ESLint configuration
+##  API Integration
+Communication with the Spring Boot Backend is centralized in the `services/userApi.js` module.
+* **Axios Instance:** Configured with a base URL and custom interceptors if needed.
+* **Error Handling:** Centralized catch blocks to handle API errors and provide user feedback.
+* **CORS Compatibility:** Works in tandem with the Backend's CORS policy.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+##  Installation & Setup
+1. **Prerequisites:** Ensure you have **Node.js** installed.
+2. **Install Dependencies:**
+   ```bash
+   npm install
