@@ -94,7 +94,7 @@ export default function Users() {
                                 Next &raquo;
                             </button>
                         ) : (
-                            <div style={{ width: "100px" }}></div> // Placeholder
+                            <div style={{ width: "100px" }}></div>
                         )}
                     </div>
                 )}

@@ -54,7 +54,7 @@ export default function CreateUser() {
                         name="name"
                         value={form.name}
                         onChange={handleChange}
-                        required
+                        // required
                     />
                 </label>
 
