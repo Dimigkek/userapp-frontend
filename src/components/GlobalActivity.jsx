@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import taskApi from "../api/taskApi";
@@ -35,12 +36,37 @@ export default function GlobalActivity() {
     };
 
     return (
-        <div className="card" style={{ padding: '0', overflow: 'hidden', border: '1px solid #1e293b' }}>
-            {loading ? (
-                <p style={{ padding: '30px', textAlign: 'center', color: '#94a3b8' }}>Loading activity...</p>
+        <div className="card" style={{
+            padding: '0',
+            overflow: 'hidden',
+            border: '1px solid #1e293b',
+            position: 'relative',
+            minHeight: '400px'
+        }}>
+
+            {loading && tasks.length > 0 && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, right: 0, bottom: 0,
+                    backgroundColor: 'rgba(15, 23, 42, 0.5)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 10,
+                    backdropFilter: 'blur(2px)'
+                }}>
+                    <div className="loader"></div>
+                </div>
+            )}
+
+            {loading && tasks.length === 0 ? (
+                <div style={{ padding: '100px', textAlign: 'center' }}>
+                    <div className="loader" style={{ margin: '0 auto' }}></div>
+                    <p style={{ marginTop: '20px', color: '#94a3b8' }}>Fetching tasks...</p>
+                </div>
             ) : tasks.length > 0 ? (
                 <>
-                    <div style={{ overflowX: 'auto' }}>
+                    <div style={{ overflowX: 'auto', opacity: loading ? 0.5 : 1, transition: '0.3s' }}>
                         <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
                             <thead style={{ background: 'rgba(255,255,255,0.03)' }}>
                             <tr>
@@ -58,7 +84,7 @@ export default function GlobalActivity() {
                                         key={task.id}
                                         className="table-row-hover"
                                         onClick={() => navigate(`/tasks/${task.id}`)}
-                                        style={{ borderTop: '1px solid #1e293b', cursor: 'pointer', transition: '0.2s' }}
+                                        style={{ borderTop: '1px solid #1e293b', cursor: 'pointer' }}
                                     >
                                         <td style={{ padding: '15px', fontWeight: '500', color: '#f1f5f9' }}>{task.title}</td>
                                         <td style={{ padding: '15px', color: '#94a3b8' }}>{task.ownerName}</td>
@@ -88,38 +114,58 @@ export default function GlobalActivity() {
                         alignItems: 'center',
                         padding: '20px',
                         gap: '20px',
-                        borderTop: '1px solid #1e293b'
+                        borderTop: '1px solid #1e293b',
+                        minHeight: '70px'
                     }}>
-                        {currentPage > 0 && (
+
+                        {currentPage > 0 ? (
                             <button
-                                className="primary-btn"
                                 onClick={(e) => { e.stopPropagation(); setCurrentPage(prev => prev - 1); }}
                                 style={{
-                                    padding: '8px 16px',
-                                    fontSize: '0.8rem',
-                                    boxShadow: '0 0 15px rgba(59, 130, 246, 0.4)'
+                                    padding: '10px 20px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 'bold',
+                                    backgroundColor: '#3b82f6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    minWidth: '120px',
+                                    boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                                    transition: 'all 0.3s ease'
                                 }}
                             >
                                 &larr; Previous
                             </button>
+                        ) : (
+                            <div style={{ minWidth: '120px' }}></div>
                         )}
 
-                        <span style={{ color: '#64748b', fontSize: '0.8rem' }}>
-                            Page <strong>{currentPage + 1}</strong> of {totalPages}
-                        </span>
+                        <span style={{ color: '#64748b', fontSize: '0.85rem' }}>
+        Page <strong>{currentPage + 1}</strong> of {totalPages}
+    </span>
 
-                        {currentPage + 1 < totalPages && (
+                        {currentPage + 1 < totalPages ? (
                             <button
-                                className="primary-btn"
                                 onClick={(e) => { e.stopPropagation(); setCurrentPage(prev => prev + 1); }}
                                 style={{
-                                    padding: '8px 16px',
-                                    fontSize: '0.8rem',
-                                    boxShadow: '0 0 15px rgba(59, 130, 246, 0.4)'
+                                    padding: '10px 20px',
+                                    fontSize: '0.85rem',
+                                    fontWeight: 'bold',
+                                    backgroundColor: '#3b82f6',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    minWidth: '120px',
+                                    boxShadow: '0 4px 14px 0 rgba(59, 130, 246, 0.39)',
+                                    transition: 'all 0.3s ease'
                                 }}
                             >
                                 Next &rarr;
                             </button>
+                        ) : (
+                            <div style={{ minWidth: '120px' }}></div>
                         )}
                     </div>
                 </>
