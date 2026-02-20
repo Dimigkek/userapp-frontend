@@ -2,28 +2,30 @@
 
 This is the client-side application for the User Management System, built with **React** and powered by **Vite** for an optimized development experience.
 
-##  Tech Stack
+## Tech Stack
 * **Framework:** React 18+
 * **Build Tool:** Vite
-* **HTTP Client:** Axios (for REST API communication)
-* **Routing:** React Router DOM
-* **Styling:** CSS3 / Tailwind CSS (Optional: mention if used)
+* **HTTP Client:** Axios (centralized API communication)
+* **Routing:** React Router DOM (v6+)
+* **Styling:** CSS3 with a focus on modern, dark-themed UI components.
 * **Code Quality:** ESLint & Prettier
 
-##  Key Features & Architecture
-* **SPA (Single Page Application):** Provides a seamless, fast-loading user experience.
-* **Component-Based Design:** Modular components (Forms, Tables, Navigation) for better maintainability.
-* **Server-side Pagination Support:** Integrated with the Backend's `Pageable` API to handle data in chunks.
-* **State Management:** Utilizes modern React Hooks (`useState`, `useEffect`, `useCallback`) for efficient state handling and performance optimization.
-* **Form Validation:** Client-side validation for mandatory fields and data formats (e.g., Birthdate via Datepicker).
+## Key Features & Architecture
+* **SPA (Single Page Application):** Seamless navigation without page reloads.
+* **Task Management Dashboard:** * **Dynamic Task Details:** Dedicated view for tracking task descriptions and statuses.
+    * **Status State Machine:** Visual toggles for `OPEN`, `ONGOING`, and `COMPLETED` states.
+    * **Assignee Management:** Ability to assign multiple users to specific tasks.
+* **Component-Based Design:** Modular structure (Cards, Pagination, Forms) for high maintainability.
+* **Smart Pagination:** Integrated with the Backend's `Pageable` API for efficient data fetching.
+* **State Management:** Uses React Hooks (`useState`, `useEffect`, `useCallback`) for performance optimization and stable data flow.
 
 
 
-##  API Integration
-Communication with the Spring Boot Backend is centralized in the `services/userApi.js` module.
-* **Axios Instance:** Configured with a base URL and custom interceptors if needed.
-* **Error Handling:** Centralized catch blocks to handle API errors and provide user feedback.
-* **CORS Compatibility:** Works in tandem with the Backend's CORS policy.
+## API Integration
+All communication with the Spring Boot Backend is centralized in the `src/api/` modules:
+* **userApi.js:** Handles user profiles, address management, and search.
+* **taskApi.js:** Manages task creation, status updates, user assignments, and deletion.
+* **Axios Instance:** Pre-configured base URL with standardized error handling and request interception.
 
 
 ##  Installation & Setup
