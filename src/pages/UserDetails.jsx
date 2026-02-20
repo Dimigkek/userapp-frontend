@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom"; // Προσθήκη Link
 import userApi from "../api/userApi";
 import taskApi from "../api/taskApi";
 import "./CreateUser.css";
@@ -21,13 +21,13 @@ export default function UserDetails() {
     const [totalAssignedPages, setTotalAssignedPages] = useState(0);
 
     const [newTaskTitle, setNewTaskTitle] = useState("");
+    const [newTaskDescription, setNewTaskDescription] = useState(""); // Νέο state για description
     const [assigneeAtCreate, setAssigneeAtCreate] = useState("");
 
     const [allUsers, setAllUsers] = useState([]);
     const [selectedUserForTask, setSelectedUserForTask] = useState({});
 
     const genderMap = { 'M': 'Male', 'F': 'Female', 'O': 'Other' };
-
 
     const loadMyTasks = useCallback(() => {
         taskApi.getTasksByOwner(id, myTasksPage).then(res => {
@@ -42,7 +42,6 @@ export default function UserDetails() {
             setTotalAssignedPages(res.data.totalPages || 0);
         });
     }, [id, assignedPage]);
-
 
     useEffect(() => {
         userApi.getUserById(id).then(res => {
@@ -60,7 +59,6 @@ export default function UserDetails() {
         loadAssignedTasks();
     }, [loadAssignedTasks]);
 
-
     const handleUpdate = () => {
         userApi.updateUser(id, formData).then(res => {
             setUser(res.data);
@@ -72,9 +70,15 @@ export default function UserDetails() {
         e.preventDefault();
         if (!newTaskTitle.trim()) return;
         try {
-            const res = await taskApi.createTask({ title: newTaskTitle, ownerId: id });
+            const res = await taskApi.createTask({
+                title: newTaskTitle,
+                description: newTaskDescription,
+                ownerId: id
+            });
             if (assigneeAtCreate) await taskApi.assignUser(res.data.id, assigneeAtCreate);
+
             setNewTaskTitle("");
+            setNewTaskDescription(""); // Reset description
             setAssigneeAtCreate("");
             setMyTasksPage(0);
             loadMyTasks();
@@ -116,14 +120,8 @@ export default function UserDetails() {
                         </div>
                         <div style={{ marginTop: '15px', color: '#94a3b8', fontSize: '1rem' }}>
                             <p style={{ margin: '5px 0' }}><b>Gender:</b> {genderMap[user.gender] || "Not specified"}</p>
-
-                            {/* Εμφάνιση διευθύνσεων μόνο αν δεν είναι κενές */}
-                            {user.homeAddress && (
-                                <p style={{ margin: '5px 0' }}><b>Home Address:</b> {user.homeAddress}</p>
-                            )}
-                            {user.workAddress && (
-                                <p style={{ margin: '5px 0' }}><b>Work Address:</b> {user.workAddress}</p>
-                            )}
+                            {user.homeAddress && <p style={{ margin: '5px 0' }}><b>Home Address:</b> {user.homeAddress}</p>}
+                            {user.workAddress && <p style={{ margin: '5px 0' }}><b>Work Address:</b> {user.workAddress}</p>}
                         </div>
                     </>
                 ) : (
@@ -144,18 +142,26 @@ export default function UserDetails() {
                 )}
             </div>
 
-
             <div className="card" style={{ padding: '20px', marginBottom: '30px', border: '1px solid #1e293b' }}>
                 <h3 style={{ fontSize: '0.9rem', color: '#38bdf8', marginBottom: '15px', textTransform: 'uppercase' }}>Quick Create Task</h3>
-                <form onSubmit={handleCreateTask} style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <input className="input" style={{ flex: 3, height: '42px' }} placeholder="What needs to be done?" value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} />
-                    <select className="input" style={{ flex: 2, height: '42px' }} value={assigneeAtCreate} onChange={e => setAssigneeAtCreate(e.target.value)}>
-                        <option value="">Assign to (Optional)...</option>
-                        {allUsers.filter(u => u.id !== parseInt(id)).map(u => (
-                            <option key={u.id} value={u.id}>{u.name} {u.surname}</option>
-                        ))}
-                    </select>
-                    <button type="submit" className="primary-btn" style={{ flex: 1, height: '42px', minWidth: '100px' }}>Create</button>
+                <form onSubmit={handleCreateTask}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '10px' }}>
+                        <input className="input" style={{ flex: 3, height: '42px' }} placeholder="What needs to be done?" value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} />
+                        <select className="input" style={{ flex: 2, height: '42px' }} value={assigneeAtCreate} onChange={e => setAssigneeAtCreate(e.target.value)}>
+                            <option value="">Assign to (Optional)...</option>
+                            {allUsers.filter(u => u.id !== parseInt(id)).map(u => (
+                                <option key={u.id} value={u.id}>{u.name} {u.surname}</option>
+                            ))}
+                        </select>
+                    </div>
+                    <textarea
+                        className="input"
+                        style={{ width: '100%', minHeight: '60px', marginBottom: '10px', padding: '10px', resize: 'none' }}
+                        placeholder="Add a description..."
+                        value={newTaskDescription}
+                        onChange={e => setNewTaskDescription(e.target.value)}
+                    />
+                    <button type="submit" className="primary-btn" style={{ width: '100%', height: '42px' }}>Create Task</button>
                 </form>
             </div>
 
@@ -166,7 +172,10 @@ export default function UserDetails() {
                     {myTasks.map(task => (
                         <div key={task.id} className="card" style={{ padding: '18px', marginBottom: '15px', borderLeft: '4px solid #334155' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                <span style={{ fontWeight: '600', color: '#f1f5f9' }}>{task.title}</span>
+                                {/* Link για τη σελίδα λεπτομερειών */}
+                                <Link to={`/tasks/${task.id}`} className="task-link-title" style={{ fontWeight: '600', color: '#f1f5f9', textDecoration: 'none' }}>
+                                    {task.title}
+                                </Link>
                                 <button onClick={() => taskApi.deleteTask(task.id).then(loadMyTasks)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
                             </div>
                             <div style={{ fontSize: '0.8rem', color: '#38bdf8', marginTop: '10px' }}>
@@ -189,7 +198,9 @@ export default function UserDetails() {
                     {assignedTasks.length === 0 && <div className="card" style={{ textAlign: 'center', padding: '20px', color: '#475569' }}>No tasks assigned to you.</div>}
                     {assignedTasks.map(task => (
                         <div key={task.id} className="card" style={{ padding: '18px', marginBottom: '15px', borderLeft: '4px solid #38bdf8', background: 'rgba(56, 189, 248, 0.04)' }}>
-                            <div style={{ fontWeight: '600', color: '#f1f5f9' }}>{task.title}</div>
+                            <Link to={`/tasks/${task.id}`} style={{ fontWeight: '600', color: '#f1f5f9', textDecoration: 'none' }}>
+                                {task.title}
+                            </Link>
                             <div style={{ fontSize: '0.75rem', color: '#38bdf8', marginTop: '10px' }}>📩 From: {task.ownerName}</div>
                         </div>
                     ))}

@@ -90,3 +90,21 @@
         justify-content: center;
     }
 }
+
+.table-row-hover:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 1px solid #38bdf8; /* Το μπλε που χρησιμοποιείς */
+    color: #38bdf8;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.secondary-btn:hover {
+    background: rgba(56, 189, 248, 0.1);
+}

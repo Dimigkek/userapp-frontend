@@ -4,6 +4,7 @@ import Home from "./pages/Home";
 import Users from "./pages/Users";
 import CreateUser from "./pages/CreateUser";
 import UserDetails from "./pages/UserDetails";
+import TaskDetails from "./pages/TaskDetails";
 
 export default function App() {
     return (
@@ -14,6 +15,7 @@ export default function App() {
                 <Route path="/users" element={<Users />} />
                 <Route path="/users/new" element={<CreateUser />} />
                 <Route path="/users/:id" element={<UserDetails />} />
+                <Route path="/tasks/:taskId" element={<TaskDetails />} />
             </Routes>
         </BrowserRouter>
     );

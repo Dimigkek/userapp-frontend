@@ -22,6 +22,12 @@ const taskApi = {
     getTasks: (page = 0, size = 5) => {
         return axios.get(`${BASE_URL}?page=${page}&size=${size}`);
     },
+
+    getTaskById: (id) =>
+        axios.get(`${BASE_URL}/${id}`),
+    updateTaskStatus: (id, status) => {
+        return axios.patch(`${BASE_URL}/${id}/status?status=${status}`);
+    },
 };
 
 export default taskApi;
