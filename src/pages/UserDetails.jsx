@@ -12,8 +12,15 @@ export default function UserDetails() {
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
 
+    // Pagination States για My Tasks
     const [myTasks, setMyTasks] = useState([]);
+    const [myTasksPage, setMyTasksPage] = useState(0);
+    const [totalMyPages, setTotalMyPages] = useState(0);
+
+    // Pagination States για Assigned Tasks
     const [assignedTasks, setAssignedTasks] = useState([]);
+    const [assignedPage, setAssignedPage] = useState(0);
+    const [totalAssignedPages, setTotalAssignedPages] = useState(0);
 
     const [newTaskTitle, setNewTaskTitle] = useState("");
     const [assigneeAtCreate, setAssigneeAtCreate] = useState("");
@@ -28,14 +35,29 @@ export default function UserDetails() {
             setUser(res.data);
             setFormData(res.data);
         });
-        // eslint-disable-next-line react-hooks/immutability
-        loadTasks();
         userApi.getUsers(0, 100).then(res => setAllUsers(res.data.content || []));
     }, [id]);
 
-    const loadTasks = () => {
-        taskApi.getTasksByOwner(id).then(res => setMyTasks(res.data));
-        taskApi.getTasksByAssignee(id).then(res => setAssignedTasks(res.data));
+    useEffect(() => {
+        loadMyTasks();
+    }, [id, myTasksPage]);
+
+    useEffect(() => {
+        loadAssignedTasks();
+    }, [id, assignedPage]);
+
+    const loadMyTasks = () => {
+        taskApi.getTasksByOwner(id, myTasksPage).then(res => {
+            setMyTasks(res.data.content || []);
+            setTotalMyPages(res.data.totalPages || 0);
+        });
+    };
+
+    const loadAssignedTasks = () => {
+        taskApi.getTasksByAssignee(id, assignedPage).then(res => {
+            setAssignedTasks(res.data.content || []);
+            setTotalAssignedPages(res.data.totalPages || 0);
+        });
     };
 
     const handleUpdate = () => {
@@ -51,7 +73,9 @@ export default function UserDetails() {
         try {
             const res = await taskApi.createTask({ title: newTaskTitle, ownerId: id });
             if (assigneeAtCreate) await taskApi.assignUser(res.data.id, assigneeAtCreate);
-            setNewTaskTitle(""); setAssigneeAtCreate(""); loadTasks();
+            setNewTaskTitle(""); setAssigneeAtCreate("");
+            setMyTasksPage(0);
+            loadMyTasks();
         } catch (err) { console.error(err); }
     };
 
@@ -60,10 +84,41 @@ export default function UserDetails() {
         if (!userIdToAssign) return;
         try {
             await taskApi.assignUser(taskId, userIdToAssign);
-            loadTasks();
+            loadMyTasks();
             setSelectedUserForTask(prev => ({ ...prev, [taskId]: "" }));
         } catch (err) { console.error(err); }
     };
+
+    // Compact Pagination Component
+    const PaginationControls = ({ currentPage, totalPages, onPageChange }) => (
+        <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '12px',
+            marginTop: '20px',
+            paddingTop: '15px',
+            borderTop: '1px solid rgba(255,255,255,0.05)'
+        }}>
+            <button
+                className="small-pagination-btn"
+                disabled={currentPage === 0}
+                onClick={() => onPageChange(currentPage - 1)}
+            >
+                Prev
+            </button>
+            <span style={{ fontSize: '0.75rem', color: '#94a3b8', minWidth: '80px', textAlign: 'center' }}>
+                {currentPage + 1} / {totalPages}
+            </span>
+            <button
+                className="small-pagination-btn"
+                disabled={currentPage >= totalPages - 1}
+                onClick={() => onPageChange(currentPage + 1)}
+            >
+                Next
+            </button>
+        </div>
+    );
 
     if (!user) return <div className="page">Loading...</div>;
 
@@ -71,7 +126,6 @@ export default function UserDetails() {
         <div className="page" style={{ maxWidth: '1000px', margin: '0 auto', padding: '20px' }}>
             <h1 className="page-title" style={{ fontSize: '1.8rem', fontWeight: '600' }}>User Profile</h1>
 
-            {/* PROFILE SECTION */}
             <div className="card" style={{ padding: '25px', marginBottom: '25px' }}>
                 {!isEditing ? (
                     <>
@@ -112,26 +166,25 @@ export default function UserDetails() {
                 </form>
             </div>
 
-            {/* TASK COLUMNS */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
 
-                {/* COLUMN: MY TASKS */}
                 <div>
                     <h3 style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '15px', fontWeight: 'bold' }}>TASKS I CREATED</h3>
-                    {myTasks.length === 0 && <p style={{color: '#475569', fontSize: '0.9rem'}}>No tasks created yet.</p>}
+                    {myTasks.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#475569', border: '1px dashed #1e293b', borderRadius: '8px' }}>
+                            No tasks created yet.
+                        </div>
+                    )}
                     {myTasks.map(task => (
                         <div key={task.id} className="card" style={{ padding: '18px', marginBottom: '15px', borderLeft: '4px solid #334155', position: 'relative' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <span style={{ fontWeight: '600', fontSize: '1.05rem', color: '#f1f5f9' }}>{task.title}</span>
-                                <button onClick={() => taskApi.deleteTask(task.id).then(loadTasks)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
+                                <button onClick={() => taskApi.deleteTask(task.id).then(loadMyTasks)} style={{ color: '#ef4444', background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}>✕</button>
                             </div>
-
                             <div style={{ fontSize: '0.8rem', color: '#38bdf8', margin: '10px 0', display: 'flex', alignItems: 'center', gap: '5px' }}>
                                 <span style={{opacity: 0.7}}>👥 Assignees:</span>
                                 <span>{task.assigneeNames?.join(", ") || "None"}</span>
                             </div>
-
-                            {/* Διορθωμένο Assign Section */}
                             <div style={{ display: 'flex', gap: '8px', marginTop: '15px', width: '100%' }}>
                                 <select
                                     className="input"
@@ -154,12 +207,18 @@ export default function UserDetails() {
                             </div>
                         </div>
                     ))}
+                    {totalMyPages > 1 && (
+                        <PaginationControls currentPage={myTasksPage} totalPages={totalMyPages} onPageChange={setMyTasksPage} />
+                    )}
                 </div>
 
-                {/* COLUMN: ASSIGNED TO ME */}
                 <div>
                     <h3 style={{ fontSize: '0.85rem', color: '#64748b', marginBottom: '15px', fontWeight: 'bold' }}>ASSIGNED TO ME</h3>
-                    {assignedTasks.length === 0 && <p style={{color: '#475569', fontSize: '0.9rem'}}>No tasks assigned to you.</p>}
+                    {assignedTasks.length === 0 && (
+                        <div style={{ textAlign: 'center', padding: '20px', color: '#475569', border: '1px dashed #1e293b', borderRadius: '8px' }}>
+                            No tasks assigned to you.
+                        </div>
+                    )}
                     {assignedTasks.map(task => (
                         <div key={task.id} className="card" style={{ padding: '18px', marginBottom: '15px', borderLeft: '4px solid #38bdf8', background: 'rgba(56, 189, 248, 0.04)' }}>
                             <div style={{ fontWeight: '600', fontSize: '1.05rem', color: '#f1f5f9', marginBottom: '12px' }}>{task.title}</div>
@@ -169,6 +228,9 @@ export default function UserDetails() {
                             </div>
                         </div>
                     ))}
+                    {totalAssignedPages > 1 && (
+                        <PaginationControls currentPage={assignedPage} totalPages={totalAssignedPages} onPageChange={setAssignedPage} />
+                    )}
                 </div>
             </div>
 

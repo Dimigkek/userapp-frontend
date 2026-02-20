@@ -53,7 +53,6 @@ export default function Users() {
                             <Link
                                 to={`/users/${user.id}`}
                                 className="user-link"
-                                target="_blank"
                                 rel="noopener noreferrer"
                             >
                                 {user.name} {user.surname}
