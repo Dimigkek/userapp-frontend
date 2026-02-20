@@ -27,7 +27,6 @@ export default function Home() {
 
     return (
         <div className="home">
-            <span className="home-badge">Home Page</span>
             <h1 className="home-title">Welcome to the User Management App</h1>
 
             <div className="home-actions">
