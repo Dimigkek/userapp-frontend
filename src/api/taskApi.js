@@ -17,7 +17,11 @@ const taskApi = {
         axios.post(`${BASE_URL}/${taskId}/assign/${userId}`),
 
     deleteTask: (id) =>
-        axios.delete(`${BASE_URL}/${id}`)
+        axios.delete(`${BASE_URL}/${id}`),
+
+    getTasks: (page = 0, size = 5) => {
+        return axios.get(`${BASE_URL}?page=${page}&size=${size}`);
+    },
 };
 
 export default taskApi;
