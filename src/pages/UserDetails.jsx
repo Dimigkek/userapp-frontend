@@ -1,184 +1,158 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import userApi from "../api/userApi";
-import taskApi from "../api/taskApi"; // Το νέο API για τα tasks
+import taskApi from "../api/taskApi";
 import "./CreateUser.css";
 
 export default function UserDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
 
-    // States για τον User
     const [user, setUser] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState({});
 
-    // States για τα Tasks
-    const [tasks, setTasks] = useState([]);
-    const [newTaskTitle, setNewTaskTitle] = useState("");
+    const [myTasks, setMyTasks] = useState([]);
+    const [assignedTasks, setAssignedTasks] = useState([]);
 
-    const genderMap = {
-        'M': 'Male',
-        'F': 'Female',
-        'O': 'Other'
-    };
+    const [newTaskTitle, setNewTaskTitle] = useState("");
+    const [assigneeAtCreate, setAssigneeAtCreate] = useState("");
+
+    const [allUsers, setAllUsers] = useState([]);
+    const [selectedUserForTask, setSelectedUserForTask] = useState({});
+
+    const genderMap = { 'M': 'Male', 'F': 'Female', 'O': 'Other' };
 
     useEffect(() => {
-        // 1. Φόρτωση στοιχείων χρήστη
-        userApi.getUserById(id)
-            .then(res => {
-                setUser(res.data);
-                setFormData(res.data);
-            })
-            .catch(err => console.error("Error fetching user:", err));
-
-        // 2. Φόρτωση tasks του χρήστη
+        userApi.getUserById(id).then(res => {
+            setUser(res.data);
+            setFormData(res.data);
+        });
         loadTasks();
+        userApi.getUsers(0, 100).then(res => setAllUsers(res.data.content || []));
     }, [id]);
 
     const loadTasks = () => {
-        taskApi.getTasksByOwner(id)
-            .then(res => setTasks(res.data))
-            .catch(err => console.error("Error fetching tasks:", err));
-    };
-
-    const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        taskApi.getTasksByOwner(id).then(res => setMyTasks(res.data));
+        taskApi.getTasksByAssignee(id).then(res => setAssignedTasks(res.data));
     };
 
     const handleUpdate = () => {
-        userApi.updateUser(id, formData)
-            .then(res => {
-                setUser(res.data);
-                setIsEditing(false);
-            })
-            .catch(err => {
-                console.error("Update error:", err);
-                alert("Failed to update user.");
-            });
+        userApi.updateUser(id, formData).then(res => {
+            setUser(res.data);
+            setIsEditing(false);
+        }).catch(err => alert("Update failed"));
     };
 
     const handleCreateTask = async (e) => {
         e.preventDefault();
         if (!newTaskTitle.trim()) return;
-
         try {
-            // Στέλνουμε το title και το ownerId (το id από το useParams)
-            await taskApi.createTask({
-                title: newTaskTitle,
-                description: "", // Μπορείς να προσθέσεις input και για αυτό
-                ownerId: id
-            });
-            setNewTaskTitle(""); // Καθαρισμός input
-            loadTasks(); // Refresh τη λίστα των tasks
-        } catch (err) {
-            console.error("Task creation error:", err);
-            alert("Failed to create task.");
-        }
+            const res = await taskApi.createTask({ title: newTaskTitle, ownerId: id });
+            if (assigneeAtCreate) await taskApi.assignUser(res.data.id, assigneeAtCreate);
+            setNewTaskTitle(""); setAssigneeAtCreate(""); loadTasks();
+        } catch (err) { console.error(err); }
     };
 
-    const handleDeleteTask = async (taskId) => {
+    const handleAssignUser = async (taskId) => {
+        const userIdToAssign = selectedUserForTask[taskId];
+        if (!userIdToAssign) return;
         try {
-            await taskApi.deleteTask(taskId);
-            loadTasks(); // Refresh μετά τη διαγραφή
-        } catch (err) {
-            console.error("Delete task error:", err);
-            alert("Failed to delete task.");
-        }
+            await taskApi.assignUser(taskId, userIdToAssign);
+            loadTasks();
+        } catch (err) { console.error(err); }
     };
 
-    if (!user) return <p className="page">Loading...</p>;
+    if (!user) return <div className="page">Loading...</div>;
 
     return (
-        <div className="page">
-            <h1 className="page-title">User Profile</h1>
+        <div className="page" style={{ maxWidth: '950px', margin: '0 auto', padding: '20px' }}>
+            <h1 className="page-title" style={{ fontSize: '1.6rem' }}>User Profile</h1>
 
-            {/* --- SECTION: USER INFO --- */}
-            <div className="card">
+            {/* PROFILE SECTION */}
+            <div className="card" style={{ padding: '20px', marginBottom: '20px' }}>
                 {!isEditing ? (
                     <>
-                        <h2 className="card-title">{user.name} {user.surname}</h2>
-                        <div className="card-section">
-                            <p><b>Gender:</b> {genderMap[user.gender] || user.gender}</p>
-                            <p><b>Birthdate:</b> {user.birthdate}</p>
-                            <p><b>Home Address:</b> {user.homeAddress || "—"}</p>
-                            <p><b>Work Address:</b> {user.workAddress || "—"}</p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <h2 style={{ margin: 0 }}>{user.name} {user.surname}</h2>
+                            <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit Profile</button>
                         </div>
-                        <button className="edit-btn" onClick={() => setIsEditing(true)}>Edit Profile</button>
+                        <div style={{ marginTop: '15px', color: '#ccc', fontSize: '0.95rem' }}>
+                            <p><b>Gender:</b> {genderMap[user.gender]} | <b>Address:</b> {user.homeAddress || "N/A"}</p>
+                        </div>
                     </>
                 ) : (
-                    <div className="form-card">
-                        <h2 className="card-title" style={{ color: 'white', marginBottom: '20px' }}>Edit User Profile</h2>
-                        <label className="label">
-                            Name *
-                            <input className="input" name="name" value={formData.name || ""} onChange={handleChange} required />
-                        </label>
-                        <label className="label">
-                            Surname *
-                            <input className="input" name="surname" value={formData.surname || ""} onChange={handleChange} required />
-                        </label>
-                        <label className="label">
-                            Gender *
-                            <select className="input" name="gender" value={formData.gender || ""} onChange={handleChange} required>
-                                <option value="">Select Gender</option>
-                                <option value="M">Male</option>
-                                <option value="F">Female</option>
-                                <option value="O">Other</option>
-                            </select>
-                        </label>
-                        <label className="label">
-                            Birthdate *
-                            <input type="date" className="input date-input" name="birthdate" value={formData.birthdate || ""} onChange={handleChange} required />
-                        </label>
-                        <div className="button-group" style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                            <input className="input" value={formData.name || ""} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Name" />
+                            <input className="input" value={formData.surname || ""} onChange={e => setFormData({...formData, surname: e.target.value})} placeholder="Surname" />
+                        </div>
+                        <input className="input" value={formData.homeAddress || ""} onChange={e => setFormData({...formData, homeAddress: e.target.value})} placeholder="Home Address" />
+                        <div style={{ display: 'flex', gap: '10px' }}>
                             <button className="primary-btn" onClick={handleUpdate} style={{ flex: 1 }}>Save Changes</button>
-                            <button className="cancel-btn" onClick={() => setIsEditing(false)} style={{ flex: 1 }}>Cancel</button>
+                            <button className="cancel-btn" onClick={() => setIsEditing(false)} style={{ flex: 1, backgroundColor: '#444' }}>Cancel</button>
                         </div>
                     </div>
                 )}
             </div>
 
-            <div className="card" style={{ marginTop: '20px' }}>
-                <h2 className="card-title">User Tasks</h2>
-
-                <form onSubmit={handleCreateTask} style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-                    <input
-                        className="input"
-                        placeholder="Enter task title..."
-                        value={newTaskTitle}
-                        onChange={(e) => setNewTaskTitle(e.target.value)}
-                    />
-                    <button type="submit" className="primary-btn" style={{ width: '120px' }}>Add Task</button>
-                </form>
-
-                {tasks.length === 0 ? (
-                    <p style={{ color: '#aaa', textAlign: 'center' }}>No tasks found for this user.</p>
-                ) : (
-                    <ul className="user-list">
-                        {tasks.map(task => (
-                            <li key={task.id} className="user-item">
-                                <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                    <span className="user-link" style={{ cursor: 'default', textDecoration: 'none' }}>
-                                        {task.title}
-                                    </span>
-                                    <small style={{ color: '#888', fontSize: '0.8rem' }}>
-                                        Assignees: {task.assigneeNames && task.assigneeNames.length > 0
-                                        ? task.assigneeNames.join(", ")
-                                        : "None"}
-                                    </small>
-                                </div>
-                                <button className="delete-btn" onClick={() => handleDeleteTask(task.id)}>
-                                    Delete
-                                </button>
-                            </li>
+            {/* QUICK CREATE */}
+            <div className="card" style={{ padding: '15px', marginBottom: '25px', border: '1px solid #333' }}>
+                <h3 style={{ fontSize: '0.9rem', color: '#00d4ff', marginBottom: '12px', textTransform: 'uppercase' }}>Quick Create Task</h3>
+                <form onSubmit={handleCreateTask} style={{ display: 'flex', gap: '10px' }}>
+                    <input className="input" style={{ flex: 3 }} placeholder="What needs to be done?" value={newTaskTitle} onChange={e => setNewTaskTitle(e.target.value)} />
+                    <select className="input" style={{ flex: 2 }} value={assigneeAtCreate} onChange={e => setAssigneeAtCreate(e.target.value)}>
+                        <option value="">Assign to (Optional)...</option>
+                        {allUsers.filter(u => u.id !== parseInt(id)).map(u => (
+                            <option key={u.id} value={u.id}>{u.name} {u.surname}</option>
                         ))}
-                    </ul>
-                )}
+                    </select>
+                    <button type="submit" className="primary-btn" style={{ flex: 1 }}>Create</button>
+                </form>
             </div>
 
-            <button className="back-btn" onClick={() => navigate("/users")}>
-                ← Back to Users
-            </button>
+            {/* TASK COLUMNS */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px' }}>
+                {/* COLUMN 1: MY TASKS */}
+                <div>
+                    <h3 style={{ fontSize: '0.85rem', color: '#888', marginBottom: '15px' }}>MY TASKS</h3>
+                    {myTasks.map(task => (
+                        <div key={task.id} className="card" style={{ padding: '15px', marginBottom: '12px', borderLeft: '4px solid #444' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                <span style={{ fontWeight: '500' }}>{task.title}</span>
+                                <button onClick={() => taskApi.deleteTask(task.id).then(loadTasks)} style={{ color: '#ff4d4d', background: 'none', border: 'none', cursor: 'pointer' }}>✕</button>
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: '#00d4ff', margin: '8px 0' }}>
+                                👥 {task.assigneeNames?.join(", ") || "No one assigned"}
+                            </div>
+                            <div style={{ display: 'flex', gap: '5px' }}>
+                                <select className="input" style={{ height: '30px', fontSize: '0.75rem' }} onChange={e => setSelectedUserForTask({...selectedUserForTask, [task.id]: e.target.value})}>
+                                    <option value="">Add Assignee...</option>
+                                    {allUsers.filter(u => u.id !== parseInt(id)).map(u => (
+                                        <option key={u.id} value={u.id}>{u.name}</option>
+                                    ))}
+                                </select>
+                                <button className="primary-btn" style={{ width: '40px', height: '30px', padding: 0, backgroundColor: '#28a745' }} onClick={() => handleAssignUser(task.id)}>+</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {/* COLUMN 2: ASSIGNED TO ME */}
+                <div>
+                    <h3 style={{ fontSize: '0.85rem', color: '#888', marginBottom: '15px' }}>ASSIGNED TO ME</h3>
+                    {assignedTasks.map(task => (
+                        <div key={task.id} className="card" style={{ padding: '15px', marginBottom: '12px', borderLeft: '4px solid #00d4ff', background: 'rgba(0, 212, 255, 0.03)' }}>
+                            <div style={{ fontWeight: '500', marginBottom: '10px' }}>{task.title}</div>
+                            <span style={{ fontSize: '0.75rem', color: '#00d4ff', backgroundColor: 'rgba(0,212,255,0.1)', padding: '4px 8px', borderRadius: '4px' }}>
+                                📩 From: {task.ownerName}
+                            </span>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            <button className="back-btn" onClick={() => navigate("/users")} style={{ marginTop: '30px' }}>← Back to Users</button>
         </div>
     );
 }
