@@ -5,7 +5,6 @@ const AppHistory = () => {
     const [logs, setLogs] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
 
-    // Φόρτωση των logs κατά το mount ή όταν αλλάζει η σελίδα
     useEffect(() => {
         loadLogs();
     }, [currentPage]);
@@ -20,7 +19,6 @@ const AppHistory = () => {
         if (window.confirm("Θέλεις σίγουρα να διαγράψεις αυτό το log;")) {
             try {
                 await deleteLog(id);
-                // Φιλτράρουμε το state για να εξαφανιστεί η γραμμή αμέσως
                 setLogs(logs.filter(log => log.id !== id));
             } catch (err) {
                 alert("Αποτυχία διαγραφής");
