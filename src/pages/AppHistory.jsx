@@ -1,36 +1,56 @@
 import React, { useEffect, useState } from 'react';
-import { getAuditLogs } from '../api/auditLogApi.js'
+import { getAuditLogs, deleteLog } from '../api/auditLogApi';
 
 const AppHistory = () => {
     const [logs, setLogs] = useState([]);
+    const [currentPage, setCurrentPage] = useState(0);
 
+    // Φόρτωση των logs κατά το mount ή όταν αλλάζει η σελίδα
     useEffect(() => {
-        getAuditLogs().then(response => {
-            setLogs(response.data.content);
-        });
-    }, []);
+        loadLogs();
+    }, [currentPage]);
+
+    const loadLogs = () => {
+        getAuditLogs(currentPage)
+            .then(res => setLogs(res.data.content))
+            .catch(err => console.error("Error loading logs", err));
+    };
+
+    const handleDelete = async (id) => {
+        if (window.confirm("Θέλεις σίγουρα να διαγράψεις αυτό το log;")) {
+            try {
+                await deleteLog(id);
+                // Φιλτράρουμε το state για να εξαφανιστεί η γραμμή αμέσως
+                setLogs(logs.filter(log => log.id !== id));
+            } catch (err) {
+                alert("Αποτυχία διαγραφής");
+            }
+        }
+    };
 
     return (
-        <div className="p-4">
-            <h2 className="text-2xl font-bold mb-4">App History & Logs</h2>
-            <table className="min-w-full bg-white border">
+        <div className="history-container">
+            <h2>App History & Audit Logs</h2>
+            <table className="audit-table">
                 <thead>
                 <tr>
-                    <th className="border p-2">Timestamp</th>
-                    <th className="border p-2">Action</th>
-                    <th className="border p-2">Details</th>
+                    <th>Timestamp</th>
+                    <th>Action</th>
+                    <th>Details</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 {logs.map(log => (
                     <tr key={log.id}>
-                        <td className="border p-2">{new Date(log.timestamp).toLocaleString()}</td>
-                        <td className="border p-2">
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                    {log.action}
-                                </span>
+                        <td>{new Date(log.timestamp).toLocaleString()}</td>
+                        <td><span className={`badge ${log.action}`}>{log.action}</span></td>
+                        <td>{log.details}</td>
+                        <td>
+                            <button onClick={() => handleDelete(log.id)} className="btn-delete">
+                                Delete
+                            </button>
                         </td>
-                        <td className="border p-2">{log.details}</td>
                     </tr>
                 ))}
                 </tbody>
