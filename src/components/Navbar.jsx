@@ -11,6 +11,7 @@ export default function Navbar() {
                 <Link to="/">Home</Link>
                 <Link to="/users">Users</Link>
                 <Link to="/users/new">Register User</Link>
+                <Link to="/history">App History</Link>
             </div>
         </nav>
     );

@@ -5,6 +5,7 @@ import Users from "./pages/Users";
 import CreateUser from "./pages/CreateUser";
 import UserDetails from "./pages/UserDetails";
 import TaskDetails from "./pages/TaskDetails";
+import AppHistory from "./pages/AppHistory";
 
 export default function App() {
     return (
@@ -16,6 +17,7 @@ export default function App() {
                 <Route path="/users/new" element={<CreateUser />} />
                 <Route path="/users/:id" element={<UserDetails />} />
                 <Route path="/tasks/:taskId" element={<TaskDetails />} />
+                <Route path="/history" element={<AppHistory />} />
             </Routes>
         </BrowserRouter>
     );
